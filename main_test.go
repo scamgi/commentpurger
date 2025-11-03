@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -114,45 +113,6 @@ func TestRemoveJSComments(t *testing.T) {
 	}
 }
 
-// TestRemoveYAMLComments tests the YAML comment removal logic.
-func TestRemoveYAMLComments(t *testing.T) {
-	testCases := []struct {
-		name     string
-		input    string
-		expected string
-	}{
-		{
-			name:     "Simple YAML comment",
-			input:    "key: value # This is a comment",
-			expected: "key: value ",
-		},
-		{
-			name:     "Full line YAML comment",
-			input:    "# Entire line is a comment\nkey: value",
-			expected: "\nkey: value",
-		},
-		{
-			name:     "Indented comment",
-			input:    "parent:\n  # indented comment\n  child: value",
-			expected: "parent:\n  \n  child: value",
-		},
-		{
-			name:     "No comments",
-			input:    "key: value\nanother: 123",
-			expected: "key: value\nanother: 123",
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			output := removeYAMLComments([]byte(tc.input))
-			if string(output) != tc.expected {
-				t.Errorf("expected:\n%q\ngot:\n%q", tc.expected, string(output))
-			}
-		})
-	}
-}
-
 // TestRemoveVueComments tests the Vue SFC comment removal logic.
 func TestRemoveVueComments(t *testing.T) {
 	input := `<template>
@@ -212,7 +172,7 @@ export default {
 // TestRun is an integration test for the main file processing logic.
 func TestRun(t *testing.T) {
 	// Create a temporary directory for our test files
-	tmpDir, err := ioutil.TempDir("", "commentpurger_test")
+	tmpDir, err := os.MkdirTemp("", "commentpurger_test")
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
@@ -223,7 +183,6 @@ func TestRun(t *testing.T) {
 		"test.js":     "// js comment\nconsole.log('hello');",
 		"test.html":   "<!-- html comment --><p>hello</p>",
 		"test.css":    "/* css comment */ body {}",
-		"test.yml":    "# yaml comment\nkey: value",
 		"ignored.txt": "this file should be ignored",
 	}
 
@@ -232,12 +191,11 @@ func TestRun(t *testing.T) {
 		"test.html":   "<html><head></head><body><p>hello</p></body></html>",
 		"test.css":    " body {}",
 		"ignored.txt": "this file should be ignored",
-		"test.yml":    "\nkey: value",
 	}
 
 	// Write the test files to the temp directory
 	for name, content := range testFiles {
-		err := ioutil.WriteFile(filepath.Join(tmpDir, name), []byte(content), 0644)
+		err := os.WriteFile(filepath.Join(tmpDir, name), []byte(content), 0644)
 		if err != nil {
 			t.Fatalf("Failed to write test file %s: %v", name, err)
 		}
@@ -249,7 +207,7 @@ func TestRun(t *testing.T) {
 
 	// Check the content of the files after running the program
 	for name, expected := range expectedContent {
-		content, err := ioutil.ReadFile(filepath.Join(tmpDir, name))
+		content, err := os.ReadFile(filepath.Join(tmpDir, name))
 		if err != nil {
 			t.Fatalf("Failed to read processed file %s: %v", name, err)
 		}

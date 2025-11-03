@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -11,6 +10,15 @@ import (
 
 	"github.com/spf13/cobra"
 	"golang.org/x/net/html"
+)
+
+// Define constants for file extensions to avoid magic strings.
+const (
+	extHTML = ".html"
+	extCSS  = ".css"
+	extJS   = ".js"
+	extTS   = ".ts"
+	extVue  = ".vue"
 )
 
 var rootCmd = &cobra.Command{
@@ -23,7 +31,7 @@ You can specify one or more files or directories as arguments.`,
 	Run:  run,
 }
 
-func run(cmd *cobra.Command, args []string) {
+func run(_ *cobra.Command, args []string) {
 	for _, path := range args {
 		err := filepath.Walk(path, processFile)
 		if err != nil {
@@ -39,8 +47,8 @@ func processFile(path string, info os.FileInfo, err error) error {
 	if !info.IsDir() {
 		ext := filepath.Ext(path)
 		switch ext {
-		case ".html", ".css", ".js", ".ts", ".vue", ".yml", ".yaml":
-			content, err := ioutil.ReadFile(path)
+		case extHTML, extCSS, extJS, extTS, extVue:
+			content, err := os.ReadFile(path)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error reading file %s: %v\n", path, err)
 				return nil
@@ -48,16 +56,14 @@ func processFile(path string, info os.FileInfo, err error) error {
 
 			var newContent []byte
 			switch ext {
-			case ".html":
+			case extHTML:
 				newContent, err = removeHTMLComments(content)
-			case ".css":
+			case extCSS:
 				newContent = removeCSSComments(content)
-			case ".js", ".ts":
+			case extJS, extTS:
 				newContent = removeJSComments(content)
-			case ".vue":
+			case extVue:
 				newContent = removeVueComments(content)
-			case ".yml", ".yaml":
-				newContent = removeYAMLComments(content)
 			}
 
 			if err != nil {
@@ -66,7 +72,7 @@ func processFile(path string, info os.FileInfo, err error) error {
 			}
 
 			if !bytes.Equal(content, newContent) {
-				err = ioutil.WriteFile(path, newContent, info.Mode())
+				err = os.WriteFile(path, newContent, info.Mode())
 				if err != nil {
 					fmt.Fprintf(os.Stderr, "Error writing file %s: %v\n", path, err)
 				} else {
@@ -112,11 +118,6 @@ func removeCSSComments(content []byte) []byte {
 
 func removeJSComments(content []byte) []byte {
 	re := regexp.MustCompile(`(//.*)|(/\*[\s\S]*?\*/)`)
-	return re.ReplaceAll(content, []byte{})
-}
-
-func removeYAMLComments(content []byte) []byte {
-	re := regexp.MustCompile(`#.*`)
 	return re.ReplaceAll(content, []byte{})
 }
 func removeVueComments(content []byte) []byte {
