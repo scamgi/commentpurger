@@ -1,4 +1,4 @@
-module commentpurger
+module github.com/scamgi/commentpurger
 
 go 1.25.2
 
