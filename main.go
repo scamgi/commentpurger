@@ -39,7 +39,7 @@ func processFile(path string, info os.FileInfo, err error) error {
 	if !info.IsDir() {
 		ext := filepath.Ext(path)
 		switch ext {
-		case ".html", ".css", ".js", ".ts", ".vue":
+		case ".html", ".css", ".js", ".ts", ".vue", ".yml", ".yaml":
 			content, err := ioutil.ReadFile(path)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error reading file %s: %v\n", path, err)
@@ -56,6 +56,8 @@ func processFile(path string, info os.FileInfo, err error) error {
 				newContent = removeJSComments(content)
 			case ".vue":
 				newContent = removeVueComments(content)
+			case ".yml", ".yaml":
+				newContent = removeYAMLComments(content)
 			}
 
 			if err != nil {
@@ -110,6 +112,11 @@ func removeCSSComments(content []byte) []byte {
 
 func removeJSComments(content []byte) []byte {
 	re := regexp.MustCompile(`(//.*)|(/\*[\s\S]*?\*/)`)
+	return re.ReplaceAll(content, []byte{})
+}
+
+func removeYAMLComments(content []byte) []byte {
+	re := regexp.MustCompile(`#.*`)
 	return re.ReplaceAll(content, []byte{})
 }
 func removeVueComments(content []byte) []byte {

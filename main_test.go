@@ -114,6 +114,45 @@ func TestRemoveJSComments(t *testing.T) {
 	}
 }
 
+// TestRemoveYAMLComments tests the YAML comment removal logic.
+func TestRemoveYAMLComments(t *testing.T) {
+	testCases := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "Simple YAML comment",
+			input:    "key: value # This is a comment",
+			expected: "key: value ",
+		},
+		{
+			name:     "Full line YAML comment",
+			input:    "# Entire line is a comment\nkey: value",
+			expected: "\nkey: value",
+		},
+		{
+			name:     "Indented comment",
+			input:    "parent:\n  # indented comment\n  child: value",
+			expected: "parent:\n  \n  child: value",
+		},
+		{
+			name:     "No comments",
+			input:    "key: value\nanother: 123",
+			expected: "key: value\nanother: 123",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			output := removeYAMLComments([]byte(tc.input))
+			if string(output) != tc.expected {
+				t.Errorf("expected:\n%q\ngot:\n%q", tc.expected, string(output))
+			}
+		})
+	}
+}
+
 // TestRemoveVueComments tests the Vue SFC comment removal logic.
 func TestRemoveVueComments(t *testing.T) {
 	input := `<template>
@@ -181,17 +220,19 @@ func TestRun(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 
 	testFiles := map[string]string{
-		"test.js":   "// js comment\nconsole.log('hello');",
-		"test.html": "<!-- html comment --><p>hello</p>",
-		"test.css":  "/* css comment */ body {}",
+		"test.js":     "// js comment\nconsole.log('hello');",
+		"test.html":   "<!-- html comment --><p>hello</p>",
+		"test.css":    "/* css comment */ body {}",
+		"test.yml":    "# yaml comment\nkey: value",
 		"ignored.txt": "this file should be ignored",
 	}
 
 	expectedContent := map[string]string{
-		"test.js":   "\nconsole.log('hello');",
-		"test.html": "<html><head></head><body><p>hello</p></body></html>",
-		"test.css":  " body {}",
+		"test.js":     "\nconsole.log('hello');",
+		"test.html":   "<html><head></head><body><p>hello</p></body></html>",
+		"test.css":    " body {}",
 		"ignored.txt": "this file should be ignored",
+		"test.yml":    "\nkey: value",
 	}
 
 	// Write the test files to the temp directory

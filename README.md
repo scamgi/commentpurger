@@ -1,77 +1,156 @@
 # CommentPurger
 
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A simple and efficient command-line tool written in Go to remove comments from your code files.
+**CommentPurger** is a blazingly fast, command-line utility for stripping comments from your code. Built with Go, it's a simple and efficient tool designed to help you clean up your codebase for production builds, distribution, or analysis by safely removing comments from a variety of file types.
 
-CommentPurger helps you clean up your codebase for production builds or distribution by safely stripping comments from various file types. It recursively processes files in the directories you specify.
+It recursively processes entire directories, modifying files in-place to prepare them for their next stage.
+
+---
+
+## Why Use CommentPurger?
+
+-   **Production Builds**: Reduce file sizes by removing unnecessary comments before deploying your web application.
+-   **Code Distribution**: Share your code without including internal notes or commented-out legacy code.
+-   **Code Analysis**: Prepare source files for static analysis tools that might be affected by comments.
 
 ## Key Features
 
-- **Multi-Language Support**: Works out of the box with HTML, CSS, JavaScript, TypeScript, and Vue (`.vue`) files.
-- **Safe for HTML**: Uses a proper HTML parser to safely remove comments without breaking your markup.
-- **Vue SFC Aware**: Intelligently parses `.vue` files, removing comments from `<template>`, `<script>`, and `<style>` sections correctly.
-- **Recursive Processing**: You can point it at a single file or an entire directory, and it will find and process all supported files.
-- **Fast**: Built with Go for high performance.
+-   **High Performance**: Written in Go for maximum speed and efficiency.
+-   **Recursive Processing**: Point it at a directory, and it will find and process all supported files within it.
+-   **Language-Aware Parsing**: Uses appropriate methods for different file types to ensure comments are removed safely.
+    -   **Safe for HTML**: Employs a proper HTML parser to avoid breaking your markup.
+    -   **Vue SFC Aware**: Intelligently handles `.vue` Single-File Components, cleaning `<template>`, `<script>`, and `<style>` sections correctly.
+-   **In-Place Modification**: The tool directly updates your files, making it seamless to integrate into a build script.
+
+---
+
+## Supported Languages
+
+CommentPurger works out of the box with the most common web development file types:
+
+-   HTML (`.html`)
+-   CSS (`.css`)
+-   JavaScript (`.js`)
+-   TypeScript (`.ts`)
+-   YAML (`.yml`, `.yaml`)
+-   Vue (`.vue`)
+
+---
 
 ## Installation
 
-To install `CommentPurger`, you need to have Go installed (version 1.18 or newer).
+Ensure you have **Go (version 1.18 or newer)** installed on your system.
 
-You can install the program directly using `go install`:
-
+You can install `commentpurger` with a single command:
 ```bash
 go install github.com/scamgi/commentpurger@latest
 ```
+This will compile the program and place the executable in your Go binary path (e.g., `$GOPATH/bin`), which should be part of your system's `PATH`.
 
-This will compile the program and place the `commentpurger` executable in your Go bin directory (`$GOPATH/bin`), which should be in your system's `PATH`.
+---
 
 ## Usage
 
-You can run the command against one or more files or directories.
+The basic command structure is to provide one or more paths (to files or directories) as arguments.
 
-#### To process a single file
+> **Warning:** This tool modifies your files directly. It's recommended to use it on files that are under version control.
 
+#### Processing a Single File
 ```bash
 commentpurger path/to/your/file.js
 ```
 
-#### To process an entire directory recursively
-
+#### Processing an Entire Directory (and its subdirectories)
 ```bash
-commentpurger ./my-project-directory/
+commentpurger ./my-project/
 ```
 
-The program will modify the files in place.
+#### Processing Multiple Paths at Once
+```bash
+commentpurger ./src/components/ ./src/utils/main.js
+```
 
-## Building from Source
+### Example: Before and After
 
-If you want to build the executable from the source code yourself:
+Imagine you have a JavaScript file `app.js`:
 
-1. **Clone the repository:**
+**Before `commentpurger`:**
+```javascript
+// app.js
 
-    ```bash
-    git clone https://github.com/scamgi/commentpurger.git
-    cd commentpurger
-    ```
+// This is the main configuration object for our application.
+const config = {
+    apiKey: "ABC-123", /* IMPORTANT: Replace with a real key in production */
+    featureFlags: {
+        newUI: true, // Toggle this to switch to the new design
+    }
+};
 
-2. **Build the program:**
+/**
+ * Initializes the application.
+ * @param {object} initialConfig - The initial configuration.
+ */
+function initializeApp(initialConfig) {
+    console.log("App is starting with config:", initialConfig);
+    // TODO: Add more initialization logic here later.
+}
 
-    ```bash
-    go build
-    ```
+initializeApp(config);
+```
 
-    This will create the `commentpurger` executable in the current directory.
+Run the command:
+```bash
+commentpurger app.js
+```
 
-## Running Tests
+**After `commentpurger`:**
+```javascript
+// app.js
 
-To run the test suite and verify that everything is working as expected:
 
+const config = {
+    apiKey: "ABC-123", 
+    featureFlags: {
+        newUI: true, 
+    }
+};
+
+
+function initializeApp(initialConfig) {
+    console.log("App is starting with config:", initialConfig);
+    
+}
+
+initializeApp(config);
+```
+
+---
+
+## Development
+
+Want to contribute or build from the source yourself?
+
+#### 1. Clone the Repository
+```bash
+git clone https://github.com/scamgi/commentpurger.git
+cd commentpurger
+```
+
+#### 2. Build the Executable
+```bash
+go build
+```
+This will create the `commentpurger` binary in the current directory.
+
+#### 3. Run Tests
+To ensure everything is working as expected, run the test suite:
 ```bash
 go test -v
 ```
 
+---
+
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
+This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for the full text.
