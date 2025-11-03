@@ -1,0 +1,17 @@
+run:
+  # The default timeout is 1m, but you can increase it if needed.
+  timeout: 3m
+
+linters:
+  # Enable a specific set of linters instead of the default ones.
+  # Run `golangci-lint help linters` to see a list of all available linters.
+  enable:
+    - gofmt
+    - goimports
+    - revive
+    - errcheck
+    - staticcheck
+    - unused
+    - goconst
+    - gocyclo
+    - govet
