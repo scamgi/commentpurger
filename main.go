@@ -109,10 +109,9 @@ func removeCSSComments(content []byte) []byte {
 }
 
 func removeJSComments(content []byte) []byte {
-	re := regexp.MustCompile(`(//[^\n]*\n)|(/\*[\s\S]*?\*/)`)
+	re := regexp.MustCompile(`(//.*)|(/\*[\s\S]*?\*/)`)
 	return re.ReplaceAll(content, []byte{})
 }
-
 func removeVueComments(content []byte) []byte {
 	templateRe := regexp.MustCompile(`(?s)<template>(.*)</template>`)
 	scriptRe := regexp.MustCompile(`(?s)<script.*?>(.*)</script>`)
