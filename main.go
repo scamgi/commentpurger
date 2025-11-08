@@ -19,6 +19,7 @@ const (
 	extJS   = ".js"
 	extTS   = ".ts"
 	extVue  = ".vue"
+	extGo   = ".go"
 )
 
 var rootCmd = &cobra.Command{
@@ -47,7 +48,7 @@ func processFile(path string, info os.FileInfo, err error) error {
 	if !info.IsDir() {
 		ext := filepath.Ext(path)
 		switch ext {
-		case extHTML, extCSS, extJS, extTS, extVue:
+		case extHTML, extCSS, extJS, extTS, extVue, extGo:
 			content, err := os.ReadFile(path)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error reading file %s: %v\n", path, err)
@@ -60,7 +61,7 @@ func processFile(path string, info os.FileInfo, err error) error {
 				newContent, err = removeHTMLComments(content)
 			case extCSS:
 				newContent = removeCSSComments(content)
-			case extJS, extTS:
+			case extJS, extTS, extGo:
 				newContent = removeJSComments(content)
 			case extVue:
 				newContent = removeVueComments(content)

@@ -183,6 +183,7 @@ func TestRun(t *testing.T) {
 		"test.js":     "// js comment\nconsole.log('hello');",
 		"test.html":   "<!-- html comment --><p>hello</p>",
 		"test.css":    "/* css comment */ body {}",
+		"test.go":     "// go comment\npackage main",
 		"ignored.txt": "this file should be ignored",
 	}
 
@@ -190,6 +191,7 @@ func TestRun(t *testing.T) {
 		"test.js":     "\nconsole.log('hello');",
 		"test.html":   "<html><head></head><body><p>hello</p></body></html>",
 		"test.css":    " body {}",
+		"test.go":     "\npackage main",
 		"ignored.txt": "this file should be ignored",
 	}
 
